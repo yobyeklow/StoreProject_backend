@@ -1,7 +1,6 @@
 const express = require("express");
 const Cart = require("../controller/cart");
-const {requireSignin,adminMiddleware} = require("../middlewares/index");
-const {verifyToken,verifyTokenAndAuthorizaiton} = require("../routes/verifyToken");
+const {verifyToken} = require("../routes/verifyToken");
 module.exports = (app)=>{
     const router = express.Router();
     router.post("/cart/addtocart",verifyToken,Cart.addItemToCart);

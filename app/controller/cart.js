@@ -3,7 +3,7 @@ const product = require("../models/product");
 const Product = require("../models/product");
 
 exports.addItemToCart = (req, res, next) => {
-  console.log(req.body);
+  console.log(req.body.cartItems);
   Cart.findOne({ user: req.user.id })
       .exec((error, cart) => {
 
@@ -72,20 +72,18 @@ exports.addItemToCart = (req, res, next) => {
 
 }
 exports.deleteCart = async(req,res,next)=>{
-   console.log(req.body._id);
+   console.log(req.body);
    Cart.findOne({user:req.user.id})
        .exec(async function(err,cart){
          if(err) res.status(400).json(err);
          if(cart){
             const productId= req.body._id;
-            console.log(productId);
             var item = await cart.cartItems.find((element,index)=>{
               if(element.product == productId){
                   const result=cart.cartItems.splice(index,1);
                   return result;
               }
             })
-            console.log(item);
             if(item){
               const condition = {user:req.user.id};
               const updated ={ 

@@ -15,7 +15,7 @@ const verifyToken = (req,res,next)=>{
 }
 const verifyTokenAndAuthorizaiton = (req,res,next)=>{
     verifyToken(req,res,()=>{
-        if(req.user.id===req.params.id ||req.user.role ==="admin"){
+        if(req.user.role ==="admin"){
             next();
         }
         else{

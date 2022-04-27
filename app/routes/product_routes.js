@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
   })
   
 const upload = multer({ storage: storage }).single("image")
-const {verifyToken,verifyTokenAndAuthorizaiton} = require("../routes/verifyToken");
+const {verifyTokenAndAuthorizaiton} = require("../routes/verifyToken");
 module.exports = (app)=>{
     const router = express.Router();
     router.get("/items/:id",Product.getProduct);

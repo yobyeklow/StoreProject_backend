@@ -1,14 +1,8 @@
 const User = require("../models/user");
-
+const { check, validationResult } = require('express-validator/check');
 exports.RegisterValidator = function(req,res,next){
     req.check('email','Email không đúng').isEmail();
     req.check('email','Email bị bỏ trống').not().isEmpty();
-    // req.check('firstname','Tên không được bỏ trống').not().isEmpty();
-    // req.check('firstname','Tên không được ít hơn 3 chữ').isLength({min:3});
-    // req.check('firstname','Tên không được nhiều hơn 20 chữ').isLength({max:20});
-    // req.check('lastname','Họ không được bỏ trống').not().isEmpty();
-    // req.check('lastname','Họ không được ít hơn 3 chữ').isLength({min:3});
-    // req.check('lastname','Họ không được nhiều hơn 20 chữ').isLength({max:20});
     req.check('password', 'Mật khẩu không được bỏ tróng.').not().isEmpty();
     req.check('password', 'Mật khẩu phải nhiều hơn 6 kí tự').isLength({min:6});
 
@@ -32,6 +26,13 @@ exports.LoginValidator = function(req,res,next){
             return  err.param + ":" + err.msg;
         })
         return res.status(400).json({listError});
+    }
+    next();
+}
+exports.isRequestValidated = (req, res, next) => {
+    const errors = validationResult(req);
+    if( errors.array().length > 0) {
+        return res.status(400).json({ errors: errors.array()[0].msg});
     }
     next();
 }

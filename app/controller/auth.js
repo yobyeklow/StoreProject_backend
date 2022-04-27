@@ -10,14 +10,10 @@ exports.signup = async function(req,res,next){
     User.findOne({email:req.body.email})
         .exec(async(error,document)=>{
             if(error){
-                return res.status(403).json({
-                    message:error
-                })
+                return res.status(403).json({message:err})
             }
             if(document){
-                return res.status(403).send({
-                    message:"User already registered"
-                })
+                return res.status(403).json({message:"Email đã được đăng ký"})
             }
         })
     
@@ -28,7 +24,6 @@ exports.signup = async function(req,res,next){
         phone:req.body.phone,
         hash_password:hash_password,  
     })
-    console.log(user);
     const [error,document] = await handlePromise(user.save());
     if(error){
         return next(new BadRequestError(500,"An error occurred while creating the contact"));
@@ -50,15 +45,26 @@ exports.signin = async function(req,res,next){
                 return res.status(400).send({message:err});
             }
             if(!user){
-                return res.send({message:"Email này chưa được đăng kí"});
+                return res.json({message:"Email này chưa được đăng kí"});
             }
             const validPassword = await user.authenticate(req.body.password);
             if(validPassword&&(user.role=='user'||user.role=="admin")){
-                const token = jwt.sign({id:user._id},process.env.TOKEN_JWT,{expiresIn:"10m"});
-                res.header('auth-token',token).send(token);
+                const token = jwt.sign(
+                    {
+                        id:user._id,
+                        role:user.role,
+                    },
+                        process.env.TOKEN_JWT,{expiresIn:"12h"}
+                    );
+                const { _id, name, phone, email, role, hash_password } = user;
+                res.cookie('token',token,{ expires: new Date(Date.now() + 4320000)});
+                res.status(200).json({
+                    token:token,
+                    user:{ _id, name, phone, email, role, hash_password }
+                });
             }
             else{
-                return res.send("Sai mật khẩu");
+                return res.json({message:"Sai mật khẩu"});
             }
         })
 }

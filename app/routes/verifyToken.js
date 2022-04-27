@@ -1,13 +1,26 @@
 const jwt = require("jsonwebtoken");
 
-function auth(req,res,next){
-    const token = req.header('auth-token');
-    if(!token) return res.status(401).send("Access Denied");
+const verifyToken = (req,res,next)=>{
+    const authHeader = req.cookies.token;
+    if(authHeader){
+        jwt.verify(authHeader,process.env.TOKEN_JWT,(err,user)=>{
+            if(err) res.status(403).json("Token is not valid!");
+            req.user = user;
+            next();
+        });
 
-    try{
-        const verify = jwt.verify(token,process.env.TOKEN_JWT);
-        req.user = verify;
-    }catch(err){
-        res.status(400).send('Invalid Token');
+    }else{
+        return res.status(401).json("You are not authentication");
     }
 }
+const verifyTokenAndAuthorizaiton = (req,res,next)=>{
+    verifyToken(req,res,()=>{
+        if(req.user.id===req.params.id ||req.user.role ==="admin"){
+            next();
+        }
+        else{
+            res.status(403).json("You are not allow do that!");
+        }
+    })
+}
+module.exports={verifyToken,verifyTokenAndAuthorizaiton};
